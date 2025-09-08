@@ -3,107 +3,138 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>apkmodderkings</title>
+  <title>Zebdex Hacker UI</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
-    body,html{margin:0;height:100%;overflow:hidden;font-family:"Inter",sans-serif;background:#f2f3f5}
-    #bgFull{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:1}
+    body,html{
+      margin:0;height:100%;overflow:hidden;
+      font-family:"Share Tech Mono",monospace;
+      background:#000;
+      color:#fff;
+    }
+    #bgFull{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:0;opacity:.05}
 
-    /* Floating button */
-    .float{position:fixed;right:20px;bottom:20px;width:52px;height:52px;border-radius:50%;
-      background:linear-gradient(135deg,#3b82f6,#06b6d4);
-      box-shadow:0 6px 16px rgba(0,0,0,.25);
-      display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2000}
-    .float i{color:#fff;font-size:22px}
+    /* floating button draggable */
+    .float{
+      position:fixed;bottom:20px;right:20px;
+      width:55px;height:55px;border-radius:50%;
+      background:#000;
+      border:2px solid #ffeb3b;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;z-index:2000;
+      box-shadow:0 0 12px #ffeb3b;
+      transition:.25s;
+    }
+    .float i{color:#ffeb3b;font-size:22px}
 
-    /* Overlay bottom sheet */
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;z-index:1500}
-    .sheet{width:100%;max-width:440px;background:#ffffff;border-radius:20px 20px 0 0;
-      transform:translateY(100%);opacity:0;transition:transform .3s ease,opacity .25s ease;
-      box-shadow:0 -8px 24px rgba(0,0,0,.25);color:#222}
-    .sheet.open{transform:translateY(0);opacity:1}
+    /* overlay + short hacker dialog */
+    .overlay{
+      position:fixed;inset:0;
+      background:rgba(0,0,0,.7);
+      display:none;align-items:flex-end;justify-content:center;
+      z-index:1500;padding:20px;
+    }
+    .overlay.open{display:flex}
+    .dialog{
+      position:relative;width:100%;max-width:340px;
+      background:#111;
+      border:2px solid #ffeb3b;
+      border-radius:14px;
+      overflow:hidden;
+      color:#ffeb3b;
+      animation:slideUp .4s ease;
+    }
+    @keyframes slideUp{from{transform:translateY(80px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-    /* Header */
-    .hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;
-      border-bottom:1px solid #e2e2e2;border-radius:20px 20px 0 0;background:#f8f9fa}
-    .hdr .title{font-weight:700;font-size:15px;color:#111}
-    .hdr .actions{display:flex;gap:10px}
-    .join{background:#06b6d4;color:#fff;padding:6px 12px;border-radius:14px;font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px}
-    .btn-voice,.btn-close{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border:none}
-    .btn-voice{background:#e8f7f9;color:#06b6d4}
-    .btn-close{background:#f3f3f3;color:#555}
+    /* hacker animation background inside dialog */
+    .dialog::before{
+      content:"";
+      position:absolute;inset:0;
+      background:repeating-linear-gradient(0deg,rgba(255,235,59,.05) 0,rgba(255,235,59,.05) 2px,transparent 2px,transparent 4px);
+      animation:scan 2s linear infinite;
+      z-index:0;
+    }
+    @keyframes scan{
+      0%{background-position:0 0}
+      100%{background-position:0 100%}
+    }
+    .dialog-content{position:relative;z-index:1;padding:14px}
 
-    .body{padding:14px;max-height:65vh;overflow-y:auto}
-    .topline{display:flex;gap:8px;margin-bottom:12px}
-    .uid,.online{flex:1;padding:8px;border-radius:10px;background:#f5f5f5;font-size:13px;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .uid{color:#16a34a}
-    .online{color:#d97706}
+    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .title{font-size:15px;font-weight:700;color:#ffeb3b}
+    .btn-close{border:none;background:#ff1744;color:#fff;padding:4px 8px;border-radius:6px;cursor:pointer}
 
-    .brand{text-align:center;margin-bottom:12px}
-    .brand h2{margin:0;font-size:15px;color:#111}
-    .brand p{margin:4px 0 0;font-size:12px;color:#666}
-    .brand .made{color:#06b6d4;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+    .card{background:#000;padding:8px;border:1px dashed #555;border-radius:8px;margin-bottom:8px;text-align:center}
+    .card h3{margin:0;font-size:11px;color:#999}
+    .value{font-size:13px;font-weight:700;margin-top:4px}
 
-    .card{background:#fafafa;border:1px solid #ececec;border-radius:12px;padding:12px;margin-bottom:12px;text-align:center}
-    .game-type{font-weight:700;color:#3b82f6;font-size:14px}
-    .label{font-size:12px;color:#555;margin-top:6px}
-    .period,.timer{font-size:13px;font-weight:600;color:#111}
-    .timer{color:#06b6d4;margin-top:4px}
-    .result-box{margin-top:8px;padding:8px;border-radius:8px;background:#f3f3f3;font-weight:700;font-size:14px;display:none}
-    .result-box.big{color:#16a34a}
-    .result-box.small{color:#dc2626}
+    .winner{color:#76ff03}
+    .online{color:#ffb300}
+    .timer{color:#40c4ff}
+    .result{margin-top:6px;padding:6px;border-radius:6px;text-align:center;font-weight:700;font-size:13px;display:none}
+    .result.big{background:#2e7d32;color:#fff}
+    .result.small{background:#c62828;color:#fff}
 
-    .switch-wrap{margin-top:12px}
-    .switch{position:relative;display:inline-block;width:46px;height:24px}
+    .switch-wrap{text-align:center;margin:8px 0}
+    .switch{position:relative;display:inline-block;width:44px;height:22px}
     .switch input{opacity:0;width:0;height:0}
-    .slider{position:absolute;inset:0;background:#ccc;border-radius:24px;transition:.3s}
-    .slider:before{content:"";position:absolute;width:20px;height:20px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.3s}
-    .switch input:checked + .slider{background:#16a34a}
-    .switch input:checked + .slider:before{transform:translateX(22px)}
+    .slider{position:absolute;inset:0;background:#444;border-radius:22px;transition:.3s}
+    .slider:before{content:"";position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+    .switch input:checked+.slider{background:#ffeb3b}
+    .switch input:checked+.slider:before{transform:translateX(22px)}
 
-    .footer{text-align:center;font-size:12px;font-weight:600;color:#06b6d4;margin-top:8px}
-    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:6px 12px;border-radius:12px;font-size:12px;opacity:0;transition:opacity .2s;z-index:2000}
+    .actions{display:flex;gap:8px;justify-content:center;margin-top:6px}
+    .btn{border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;display:flex;align-items:center;gap:4px}
+    .btn-join{background:#0088cc;color:#fff}
+    .btn-voice{background:#4caf50;color:#fff}
+
+    .footer{text-align:center;font-size:11px;font-weight:600;color:#ffeb3b;margin-top:6px}
+    .footer i{margin-right:4px}
+
+    .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+      background:#000;color:#ffeb3b;padding:6px 12px;border-radius:10px;
+      font-size:12px;opacity:0;transition:opacity .3s;z-index:2000;border:1px solid #ffeb3b}
     .toast.show{opacity:1}
   </style>
 </head>
 <body>
   <iframe id="bgFull" src="https://www.goagames.social/#/register?invitationCode=256761638686"></iframe>
 
-  <div class="float" id="floatBtn"><i class="fa fa-star"></i></div>
+  <div class="float" id="floatBtn"><i class="fa fa-fingerprint"></i></div>
 
   <div class="overlay" id="overlay">
-    <div class="sheet" id="sheet">
-      <div class="hdr">
-        <div class="title">Prediction Panel</div>
-        <div class="actions">
-          <a class="join" href="https://telegram.me/apkmodderkings" target="_blank"><i class="fa-brands fa-telegram"></i>Join</a>
-          <button class="btn-voice" id="voiceBtn"><i class="fa fa-volume-up"></i></button>
+    <div class="dialog">
+      <div class="dialog-content">
+        <div class="header">
+          <div class="title">[PREDICT]</div>
           <button class="btn-close" id="closeBtn"><i class="fa fa-xmark"></i></button>
         </div>
-      </div>
-      <div class="body">
-        <div class="topline">
-          <div class="uid" id="winnerText">UID 2463415 Win ₹5,064</div>
-          <div class="online" id="onlineUsers"><i class="fa fa-users"></i> 190 Online</div>
-        </div>
-        <div class="brand">
-          <h2>Goa Game</h2>
-          <p><span class="made"><i class="fa-brands fa-telegram"></i> @zebdex</span></p>
-        </div>
+
+        <div class="card winner" id="winnerText">UID 2463415 Win ₹5,064</div>
+        <div class="card online" id="onlineUsers"><i class="fa fa-users"></i> 190 Online</div>
+
         <div class="card">
-          <div class="game-type">WINGO 1MIN</div>
+          <h3>Current Period</h3>
+          <div class="value" id="periodNumber">—</div>
+          <div class="value timer" id="timerText">Next in 00:00</div>
         </div>
+
         <div class="card">
-          <div class="label">Current Period (UTC)</div>
-          <div class="period" id="periodNumber">—</div>
-          <div class="timer" id="timerText">Next in 00:00</div>
-          <div class="label">Result</div>
-          <div id="resultBox" class="result-box">—</div>
-          <div class="switch-wrap">
-            <label class="switch"><input id="serverToggle" type="checkbox"><span class="slider"></span></label>
-          </div>
+          <h3>Result</h3>
+          <div id="resultBox" class="result">—</div>
         </div>
-        <div class="footer"><i class="fa-brands fa-telegram"></i> @zebdex</div>
+
+        <div class="switch-wrap">
+          <label class="switch"><input id="serverToggle" type="checkbox"><span class="slider"></span></label>
+        </div>
+
+        <div class="actions">
+          <a class="btn btn-join" href="https://telegram.me/apkmodderkings" target="_blank"><i class="fa-brands fa-telegram"></i>Join</a>
+          <button class="btn btn-voice" id="voiceBtn"><i class="fa fa-volume-up"></i>Voice</button>
+        </div>
+
+        <div class="footer"><i class="fa-brands fa-telegram"></i>@zebdex</div>
       </div>
     </div>
   </div>
@@ -122,9 +153,7 @@
 
     function showToast(msg){toast.textContent=msg;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2000)}
 
-    // Even winning numbers
     function randomEvenAmount(min,max){let amt=Math.floor(Math.random()*(max-min+1))+min;if(amt%2!==0)amt++;return amt;}
-
     function randomWinner(){
       const uid=Math.floor(1000000+Math.random()*9000000);
       let amt;const r=Math.random();
@@ -133,16 +162,8 @@
       else{amt=randomEvenAmount(6000,60000)}
       return`UID ${uid} Win ₹${amt.toLocaleString()}`
     }
-
-    function updateWinner(t){
-      if(!lastWinner||t-lastWinner>2500){lastWinner=t;winnerText.textContent=randomWinner()}
-      requestAnimationFrame(updateWinner)
-    }
-
-    function updateUsers(t){
-      if(!lastUsers||t-lastUsers>3000){lastUsers=t;const u=Math.floor(Math.random()*21)+180;onlineUsers.innerHTML=`<i class="fa fa-users"></i> ${u} Online`}
-      requestAnimationFrame(updateUsers)
-    }
+    function updateWinner(t){if(!lastWinner||t-lastWinner>2500){lastWinner=t;winnerText.textContent=randomWinner()}requestAnimationFrame(updateWinner)}
+    function updateUsers(t){if(!lastUsers||t-lastUsers>3000){lastUsers=t;const u=Math.floor(Math.random()*21)+180;onlineUsers.innerHTML=`<i class="fa fa-users"></i> ${u} Online`}requestAnimationFrame(updateUsers)}
 
     function updatePeriod(){
       if(!serverActive){resultBox.style.display="none";return}
@@ -160,7 +181,7 @@
       const kind=sum>=5?"BIG":"SMALL";
       const remain=60-s;
       timerText.textContent=`Next in 00:${String(remain%60).padStart(2,'0')}`;
-      if(remain<=59&&remain>=55){resultBox.style.display="block";resultBox.textContent="PREDICTING..."}else{resultBox.style.display="block";resultBox.textContent=kind;resultBox.classList.remove("big","small");resultBox.classList.add(kind.toLowerCase())}
+      if(remain<=59&&remain>=55){resultBox.style.display="block";resultBox.textContent="SCANNING..."}else{resultBox.style.display="block";resultBox.textContent=kind;resultBox.classList.remove("big","small");resultBox.classList.add(kind.toLowerCase())}
     }
 
     requestAnimationFrame(updateWinner);requestAnimationFrame(updateUsers);setInterval(updatePeriod,1000);
@@ -169,7 +190,7 @@
       serverActive=serverToggle.checked;
       if(navigator.vibrate)navigator.vibrate(200);
       if(serverActive){
-        let m=new SpeechSynthesisUtterance("Server is now connected");
+        let m=new SpeechSynthesisUtterance("Server connected");
         m.lang="en-IN";speechSynthesis.speak(m);
         showToast("Server Connected")
       }else{
@@ -186,13 +207,11 @@
       showToast("Join Telegram Channel: Apkmodderkings")
     });
 
-    // Floating button open/close
-    const floatBtn=document.getElementById("floatBtn"),overlay=document.getElementById("overlay"),sheet=document.getElementById("sheet"),closeBtn=document.getElementById("closeBtn");
-    floatBtn.addEventListener("click",()=>{overlay.style.display="flex";setTimeout(()=>sheet.classList.add("open"),20)});
-    closeBtn.addEventListener("click",()=>{sheet.classList.remove("open");setTimeout(()=>overlay.style.display="none",250)});
-    overlay.addEventListener("click",e=>{if(e.target===overlay){sheet.classList.remove("open");setTimeout(()=>overlay.style.display="none",250)}});
+    const floatBtn=document.getElementById("floatBtn"),overlay=document.getElementById("overlay"),closeBtn=document.getElementById("closeBtn");
+    floatBtn.addEventListener("click",()=>overlay.classList.add("open"));
+    closeBtn.addEventListener("click",()=>overlay.classList.remove("open"));
 
-    // Draggable floating icon
+    // draggable float
     let isDragging=false,offsetX=0,offsetY=0;
     function startDrag(e){isDragging=true;offsetX=(e.touches?e.touches[0].clientX:e.clientX)-floatBtn.offsetLeft;offsetY=(e.touches?e.touches[0].clientY:e.clientY)-floatBtn.offsetTop}
     function drag(e){if(!isDragging)return;e.preventDefault();let x=(e.touches?e.touches[0].clientX:e.clientX)-offsetX;let y=(e.touches?e.touches[0].clientY:e.clientY)-offsetY;floatBtn.style.left=x+"px";floatBtn.style.top=y+"px";floatBtn.style.right="auto";floatBtn.style.bottom="auto"}
